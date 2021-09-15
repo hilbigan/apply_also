@@ -19,6 +19,13 @@ assert_eq!(map.get("hello"), Some(&"world"));
 // apply:
 let x = 256.apply(|it| it * 2);
 assert_eq!(x, 512);
+
+// in a function:
+fn test() -> usize {
+    5.also(|it| {
+        println!("Returning {}!", it);
+    })
+}
 ```
 
 ## Usage

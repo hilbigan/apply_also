@@ -18,9 +18,14 @@
 //! // apply:
 //! let x = 256.apply(|it| it * 2);
 //! assert_eq!(x, 512);
+//! 
+//! // in a function:
+//! fn test() -> usize {
+//!     5.also(|it| {
+//!         println!("Returning {}!", it);
+//!     })
+//! }
 //! ```
-
-use std::borrow::Borrow;
 
 pub trait Apply<T, R> {
     /// Applies the given function to this value and
@@ -83,22 +88,22 @@ pub trait Also<T> {
 }
 
 impl<T, R> Apply<T, R> for T {
-    fn apply(self, mut function: impl FnOnce(T) -> R) -> R {
+    fn apply(self, function: impl FnOnce(T) -> R) -> R {
         function(self)
     }
 
-    fn apply_ref(self, mut function: impl FnOnce(&T) -> R) -> R {
+    fn apply_ref(self, function: impl FnOnce(&T) -> R) -> R {
         function(&self)
     }
 }
 
 impl<T> Also<T> for T {
-    fn also(self, mut function: impl FnOnce(&T) -> ()) -> T {
+    fn also(self, function: impl FnOnce(&T) -> ()) -> T {
         function(&self);
         self
     }
 
-    fn also_mut(mut self, mut function: impl FnOnce(&mut T) -> ()) -> T {
+    fn also_mut(mut self, function: impl FnOnce(&mut T) -> ()) -> T {
         function(&mut self);
         self
     }
@@ -109,6 +114,10 @@ impl<T> Also<T> for T {
 mod tests {
     use super::*;
 
+    fn test_fn() -> usize {
+        3.apply(|i| i * 2)
+    }
+
     #[test]
     fn apply() {
         let x = 500.apply(|it| it + 10);
@@ -116,6 +125,8 @@ mod tests {
 
         let y = (&vec![1, 2, 3]).apply(Vec::len);
         assert_eq!(y, 3);
+    
+        assert_eq!(test_fn(), 6);
     }
 
     #[test]
@@ -126,16 +137,10 @@ mod tests {
 
     #[test]
     fn also() {
-        fn test(arg: &Vec<()>) {
-            assert!(true);
-        }
-
         let x = Vec::new().also_mut(|it| {
             it.push("hello");
             it.push("world");
         });
         assert_eq!(x, vec!["hello", "world"]);
-
-        let x = Vec::new().also(test);
     }
 }
