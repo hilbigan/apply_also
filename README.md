@@ -32,7 +32,7 @@ fn test() -> usize {
 
 ```toml
 [dependencies]
-apply_also = { git = "https://github.com/hilbigan/apply_also" }
+apply_also = { git = "https://github.com/hilbigan/apply_also", branch = "main" }
 ```
 
 ## Note
